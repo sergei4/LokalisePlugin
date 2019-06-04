@@ -1,14 +1,14 @@
 package org.rnazarevych.lokalise.tasks
 
-import org.rnazarevych.lokalise.api.Api
+import me.eremkin.lokalise.ApiConfig
+import me.eremkin.lokalise.UploadEntry
+import me.eremkin.lokalise.taskGroup
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
-import org.rnazarevych.lokalise.ApiConfig
-import org.rnazarevych.lokalise.UploadEntry
-import org.rnazarevych.lokalise.taskGroup
+import org.rnazarevych.lokalise.api.Api
 import java.io.File
 
 open class UploadStrings : DefaultTask() {

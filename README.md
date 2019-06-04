@@ -27,7 +27,7 @@ buildscript {
 And in your app module `build.gradle` add this:
 
 ```
-apply plugin: 'org.rnazarevych.lokalise-plugin' // apply plugin 
+apply plugin: 'me.eremkin.lokalise-plugin' // apply plugin
 ......
 // and configure it
 lokalise {  
@@ -36,36 +36,26 @@ lokalise {
         token = "token"  // you need token with read and write permissions
     }  
   
-    translationsUpdateConfig {  
-        resPath = "$rootDir/app/src/main/res" // path to project res folder
-        lokaliseLangs = ["en", "es_AR", "es_AR"]
-        androidLangs = ["en", "es-rAR", "es"]  
-        defaultLang = "en"  // default language which will be put into values/strings.xml
-    }  
-  
-    //Here you can specify which files you want to upload
-    uploadEntry {  
-        path = "$rootDir/app/src/main/res/values/strings.xml"  
-        lang = "en"  
-    }  
-    uploadEntry {  
-        path = "$rootDir/app/src/main/res/values-pt/strings.xml"  
-        lang = "pt"  
-    }  
+    translationsUpdateConfig {
+        langs {
+            en {
+                lokaliseLang = "en"
+                updateStrategy = "merge"
+            }
+            ru {
+                androidLang = "ru"
+                lokaliseLang = "ru"
+                updateStrategy = "replace"
+            }
+        }
+    }
 }
 ```
 To get `projectId` go to your Project/Settings/General 
 To get read/write `token` read this [documentation](https://docs.lokalise.co/faqs/api-tokens)
 
-After this configuration you should be able to use those 2 gradle tasks `uploadStrings` and `downloadTranslations`  you can execute them from IDE GUI or command line.
+After this configuration you should be able to use task `uploadStrings` and `downloadTranslations`  you can execute them from IDE GUI or command line.
 ``` ./gradlew downloadTranslations ```
-
-Or you can, for example, create a Gradle task which will download translations and build APK
-```
-task buildRelease(type: GradleBuild) {  
-    tasks = ['clean','uploadStrings', 'downloadTranslations', 'assembleRelease', 'bundleRelease']  
-}
-```
 
 ## License
 
