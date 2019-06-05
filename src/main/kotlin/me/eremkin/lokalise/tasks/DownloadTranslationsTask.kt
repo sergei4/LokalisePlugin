@@ -1,9 +1,6 @@
 package me.eremkin.lokalise.tasks
 
-import me.eremkin.lokalise.ApiConfig
-import me.eremkin.lokalise.TranslationsUpdateConfig
-import me.eremkin.lokalise.createFileIfNotExist
-import me.eremkin.lokalise.createFolderIfNotExist
+import me.eremkin.lokalise.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -25,7 +22,7 @@ open class DownloadTranslationsTask : DefaultTask() {
     lateinit var config: TranslationsUpdateConfig
 
     init {
-        group = me.eremkin.lokalise.taskGroup
+        group = taskGroup
     }
 
     @TaskAction
@@ -80,7 +77,7 @@ open class DownloadTranslationsTask : DefaultTask() {
                                         if (!stringsXmlFile.exists()) {
                                             copyTo(stringsXmlFile, true)
                                         } else {
-                                            //Todo: merge local and remote files
+                                            TranslationUpdater.mergeStrings(stringsXmlFile, this)
                                         }
                                     }
                                     else -> {
