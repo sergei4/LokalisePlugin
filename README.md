@@ -3,8 +3,8 @@
 
 This is a simple plugin which helps with the integration of [Lokalise](https://lokalise.co) localization service into Android App. 
 This plugin has two main purposes:
-* upload local project strings to Lokalise backend
 * update local project strings files with latest translations from Lokalise backend
+* upload local project strings to Lokalise backend (will be implemented soon)
 
 ## Getting Started
 ### Setup
