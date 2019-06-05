@@ -20,7 +20,7 @@ buildscript {
   
   dependencies {  
          .......
-         classpath 'com.github.sergei4:lokaliseplugin:1.2.0' // latest version of plugin goes here
+         classpath 'com.github.sergei4:lokaliseplugin:1.3.0' // latest version of plugin goes here
   }  
 }
 ```
