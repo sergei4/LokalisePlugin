@@ -1,10 +1,10 @@
 package org.rnazarevych.lokalise.api
 
-import org.rnazarevych.lokalise.api.converters.TranslationsResponseConverter
-import org.rnazarevych.lokalise.api.dto.TranslationsResponse
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
+import org.rnazarevych.lokalise.api.converters.TranslationsResponseConverter
+import org.rnazarevych.lokalise.api.dto.TranslationsResponse
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -18,7 +18,8 @@ interface LokaliseApi {
     fun importFile(@Part("api_token") apiToken: RequestBody,
                    @Part("id") id: RequestBody,
                    @Part file: MultipartBody.Part,
-                   @Part("lang_iso") language: RequestBody
+                   @Part("lang_iso") language: RequestBody,
+                   @Part("replace_breaks") replace_breaks: RequestBody
     ): Call<ResponseBody>
 
     @FormUrlEncoded

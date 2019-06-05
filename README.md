@@ -4,7 +4,7 @@
 This is a simple plugin which helps with the integration of [Lokalise](https://lokalise.co) localization service into Android App. 
 This plugin has two main purposes:
 * update local project strings files with latest translations from Lokalise backend
-* upload local project strings to Lokalise backend (will be implemented soon)
+* upload local project strings to Lokalise backend
 
 ## Getting Started
 ### Setup
@@ -51,12 +51,22 @@ lokalise {
             }
         }
     }
+
+    //Here you can specify which files you want to upload
+    uploadEntry {
+        path = "$rootDir/android/src/main/res/values/strings.xml"
+        lang = "en_US"
+    }
+    uploadEntry {
+        path = "$rootDir/android/src/main/res/values-ru/strings.xml"
+        lang = "ru"
+    }
 }
 ```
 To get `projectId` go to your Project/Settings/General 
 To get read/write `token` read this [documentation](https://docs.lokalise.co/faqs/api-tokens)
 
-After this configuration you should be able to use task `downloadTranslations`  you can execute them from IDE GUI or command line.
+After this configuration you should be able to use those 2 gradle tasks `uploadStrings` and `downloadTranslations`  you can execute them from IDE GUI or command line.
 ``` ./gradlew downloadTranslations ```
 
 ## License

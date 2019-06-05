@@ -8,6 +8,8 @@ import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.rnazarevych.lokalise.UploadEntry
+import org.rnazarevych.lokalise.tasks.UploadStrings
 import java.io.File
 
 const val taskGroup = "lokalise"
@@ -57,6 +59,11 @@ class LokalisePlugin : Plugin<Project> {
                     it.config = config.translationsUpdateConfig
                     it.buildFolder = File(project.buildDir.absolutePath)
                 }
+
+                create("uploadStrings", UploadStrings::class.java) {
+                    it.apiConfig = config.api
+                    it.uploadEntries = config.uploadEntries
+                }
             }
         }
     }
@@ -69,15 +76,12 @@ open class Config() {
     val translationsUpdateConfig = TranslationsUpdateConfig()
     fun translationsUpdateConfig(action: Action<TranslationsUpdateConfig>) = action.execute(translationsUpdateConfig)
 
-//    val stringsUploadConfig = StringsUploadConfig()
-//    fun stringsUploadConfig(action: Action<in StringsUploadConfig>) = action.execute(stringsUploadConfig)
-//
-//    val uploadEntries: MutableList<UploadEntry> = mutableListOf()
-//    fun uploadEntry(action: Action<in UploadEntry>) {
-//        val newEntry = UploadEntry()
-//        action.execute(newEntry)
-//        uploadEntries.add(newEntry)
-//    }
+    val uploadEntries: MutableList<UploadEntry> = mutableListOf()
+    fun uploadEntry(action: Action<in UploadEntry>) {
+        val newEntry = UploadEntry()
+        action.execute(newEntry)
+        uploadEntries.add(newEntry)
+    }
 }
 
 data class ApiConfig(
@@ -99,23 +103,6 @@ data class Lang(val name: String = "") {
     var lokaliseLang: String = ""
     var updateStrategy: String = "merge"
 }
-
-open class StringsUploadConfig {
-    val api = ApiConfig()
-    fun api(action: Action<in ApiConfig>) = action.execute(api)
-    var str: MutableList<String> = mutableListOf()
-    val uploadEntries: MutableList<UploadEntry> = mutableListOf()
-    fun uploadEntry(action: Action<in UploadEntry>) {
-        val newEntry = UploadEntry()
-        action.execute(newEntry)
-        uploadEntries.add(newEntry)
-    }
-}
-
-open class UploadEntry(
-    var path: String = "",
-    var lang: String = ""
-)
 
 fun File.createFileIfNotExist(block: (File.() -> Unit)? = null) {
     if (exists()) {
