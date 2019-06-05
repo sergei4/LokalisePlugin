@@ -12,17 +12,13 @@ import java.io.File
 
 const val taskGroup = "lokalise"
 
+const val exceptionTag = "lokalise-plugin"
+
 class LokalisePlugin : Plugin<Project> {
 
     lateinit var config: Config
 
     override fun apply(project: Project) {
-
-        project.plugins.apply {
-            if (findPlugin("com.android.application") == null && findPlugin("com.android.library") == null) {
-                throw RuntimeException("You must apply the Android plugin or the Android library plugin before using the lokalise plugin")
-            }
-        }
 
         config = project.extensions.create("lokalise", Config::class.java)
         val langs = project.container(Lang::class.java)
@@ -30,11 +26,27 @@ class LokalisePlugin : Plugin<Project> {
 
         project.afterEvaluate {
 
-            val android : BaseExtension = project.extensions.findByName("android") as BaseExtension
+            project.plugins.apply {
+                if (findPlugin("com.android.application") == null && findPlugin("com.android.library") == null) {
+                    throw RuntimeException("You must apply the Android plugin or the Android library plugin before using the lokalise plugin")
+                }
+            }
 
-            val dirs = android.sourceSets.getByName("main").res.srcDirs
-            if(dirs.size == 1){
-                config.translationsUpdateConfig.resPath = dirs.iterator().next().absolutePath
+            val android: BaseExtension = project.extensions.findByName("android") as BaseExtension
+
+            val resPath = config.translationsUpdateConfig.resPath
+
+            if (resPath == "") {
+                try {
+                    val resDirs = android.sourceSets.getByName("main").res.srcDirs
+                    config.translationsUpdateConfig.resPath = resDirs.iterator().next().absolutePath
+                } catch (exeption: Exception) {
+                    throw RuntimeException("$exceptionTag: ${exeption.message ?: ""}")
+                }
+            } else {
+                if (!File(resPath).exists()) {
+                    throw RuntimeException("$exceptionTag: invalid resource path: $resPath")
+                }
             }
 
             Api2.configure(config.api.projectId)
@@ -109,7 +121,7 @@ fun File.createFileIfNotExist(block: (File.() -> Unit)? = null) {
     if (exists()) {
         createNewFile()
     }
-    block?.let{
+    block?.let {
         it(this)
     }
 }

@@ -37,6 +37,8 @@ lokalise {
     }  
   
     translationsUpdateConfig {
+        resPath = "$rootDir/android/src/main/res" // by default used "main" android sourceSet
+
         langs {
             en {
                 lokaliseLang = "en"
