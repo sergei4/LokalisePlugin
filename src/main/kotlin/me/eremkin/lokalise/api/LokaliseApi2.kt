@@ -1,11 +1,11 @@
-package org.rnazarevych.lokalise.api
+package me.eremkin.lokalise.api
 
 import com.google.gson.GsonBuilder
+import me.eremkin.lokalise.api.dto.DownloadParams
+import me.eremkin.lokalise.api.dto.DownloadResponse
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.rnazarevych.lokalise.api.dto.DownloadParams
-import org.rnazarevych.lokalise.api.dto.DownloadResponse
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

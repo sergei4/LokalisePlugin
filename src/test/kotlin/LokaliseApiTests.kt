@@ -1,8 +1,8 @@
+import me.eremkin.lokalise.api.Api2
+import me.eremkin.lokalise.api.dto.DownloadParams
 import org.junit.Assert
 import org.junit.Test
 import org.rnazarevych.lokalise.api.Api
-import org.rnazarevych.lokalise.api.Api2
-import org.rnazarevych.lokalise.api.dto.DownloadParams
 
 
 const val projectId = ""

@@ -2,12 +2,12 @@ package me.eremkin.lokalise
 
 import com.android.build.gradle.BaseExtension
 import groovy.lang.Closure
+import me.eremkin.lokalise.api.Api2
 import me.eremkin.lokalise.tasks.DownloadTranslationsTask
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.rnazarevych.lokalise.api.Api2
 import java.io.File
 
 const val taskGroup = "lokalise"
