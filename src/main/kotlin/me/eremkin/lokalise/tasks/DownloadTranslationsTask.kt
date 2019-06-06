@@ -21,13 +21,17 @@ open class DownloadTranslationsTask : DefaultTask() {
     @Input
     lateinit var config: TranslationsUpdateConfig
 
+    val langMap = mapOf(
+        "he" to "iw"
+    )
+
     init {
         group = taskGroup
     }
 
     @TaskAction
     fun download() {
-        if(config.langs.size == 0){
+        if (config.langs.size == 0) {
             println("Warning: there isn't section {langs}")
             return
         }
@@ -67,7 +71,12 @@ open class DownloadTranslationsTask : DefaultTask() {
                     val langValueFolder = if (lang.androidLang.isEmpty()) "values" else "values-" + lang.androidLang
                     File(recourseFolder, langValueFolder).let { recourseFolder ->
                         recourseFolder.createFolderIfNotExist()
-                        val langIso = lang.lokaliseLang.replace("_", "-r")
+                        var langIso = lang.lokaliseLang.run {
+                            replace("_", "-r")
+                        }
+                        langMap.forEach {
+                            langIso = langIso.replace(it.key, it.value)
+                        }
                         File(tmpFolder, langIso + ".xml").run {
                             if (exists()) {
                                 val stringsXmlFile = File(recourseFolder, "strings.xml")
