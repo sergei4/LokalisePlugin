@@ -20,7 +20,7 @@ buildscript {
   
   dependencies {  
          .......
-         classpath 'com.github.sergei4:lokaliseplugin:1.4.0' // latest version of plugin goes here
+         classpath 'com.github.sergei4:lokaliseplugin:1.5.0' // latest version of plugin goes here
   }  
 }
 ```
@@ -69,7 +69,7 @@ To get read/write `token` read this [documentation](https://docs.lokalise.co/faq
 After this configuration you should be able to use those 2 gradle tasks `uploadStrings` and `downloadTranslations`  you can execute them from IDE GUI or command line.
 ``` ./gradlew downloadTranslations ```
 
-##Thanks
+## Thanks
 
 Credit to Roman Nazarevych (@lemberh) for his [project](https://github.com/lemberh/LokalisePlugin), on which this is based
 
