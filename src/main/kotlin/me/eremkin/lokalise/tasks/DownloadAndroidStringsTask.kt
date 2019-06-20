@@ -1,7 +1,7 @@
 package me.eremkin.lokalise.tasks
 
 import me.eremkin.lokalise.*
-import me.eremkin.lokalise.api.Api2
+import me.eremkin.lokalise.api.AndroidLokalizeApi2
 import me.eremkin.lokalise.api.dto.DownloadParams
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
@@ -10,7 +10,7 @@ import java.io.File
 import java.net.URL
 import java.util.zip.ZipFile
 
-open class DownloadTranslationsTask : DefaultTask() {
+open class DownloadAndroidStringsTask : DefaultTask() {
 
     @Input
     lateinit var buildFolder: File
@@ -45,14 +45,14 @@ open class DownloadTranslationsTask : DefaultTask() {
         }
 
         println("Downloading translations from lokalise...")
-        val response = Api2.api.downloadFiles(apiConfig.token, DownloadParams(langs = langParam)).execute()
+        val response = AndroidLokalizeApi2.api.downloadFiles(apiConfig.token, DownloadParams(langs = langParam)).execute()
 
         if (!response.isSuccessful) {
             throw RuntimeException(response.errorBody()?.string())
         } else {
             println("Download completed successful")
             response.body()?.let {
-                File(tmpFolder, "translations.zip").createFileIfNotExist {
+                File(tmpFolder, "strings.zip").createFileIfNotExist {
                     URL(it.bundleUrl).openStream().copyTo(outputStream())
 
                     ZipFile(this).use { zip ->
@@ -62,7 +62,6 @@ open class DownloadTranslationsTask : DefaultTask() {
                             }
                         }
                     }
-
                     delete()
                 }
                 println("Start apply translations")
