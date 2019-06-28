@@ -1,4 +1,4 @@
-import me.eremkin.lokalise.api.AndroidLokalizeApi2
+import me.eremkin.lokalise.api.Api2
 import me.eremkin.lokalise.api.dto.DownloadParams
 import org.junit.Assert
 import org.junit.Test
@@ -19,9 +19,9 @@ class LokaliseApiTest : Assert() {
 
     @Test
     fun downloadFilesTest() {
-        AndroidLokalizeApi2.configure(projectId)
+        Api2.configure(projectId)
 
-        val response = AndroidLokalizeApi2.api.downloadFiles(token, DownloadParams()).execute()
+        val response = Api2.api.downloadFiles(token, DownloadParams()).execute()
 
         assertNotNull(response.body()!!.bundleUrl)
     }

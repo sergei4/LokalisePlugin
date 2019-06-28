@@ -24,32 +24,7 @@ interface LokaliseApi2 {
     ): Call<DownloadResponse>
 }
 
-object AndroidLokalizeApi2 {
-    private val gson = GsonBuilder().create()
-
-    private val loggingInterceptor: Interceptor = HttpLoggingInterceptor()
-        .setLevel(HttpLoggingInterceptor.Level.BODY)
-
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(100, TimeUnit.SECONDS)
-        .writeTimeout(100, TimeUnit.SECONDS)
-        .readTimeout(100, TimeUnit.SECONDS)
-        //.addInterceptor(loggingInterceptor)
-        .build()
-
-    lateinit var api: LokaliseApi2
-
-    fun configure(projectId: String) {
-        api = Retrofit.Builder()
-            .baseUrl("https://api.lokalise.co/api2/projects/$projectId/")
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-            .create(LokaliseApi2::class.java)
-    }
-}
-
-object IosLokalizeApi2 {
+object Api2 {
     private val gson = GsonBuilder().create()
 
     private val loggingInterceptor: Interceptor = HttpLoggingInterceptor()

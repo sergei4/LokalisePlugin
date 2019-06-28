@@ -29,9 +29,13 @@ publishing {
 
 gradlePlugin {
     plugins {
-        create("LokalisePlugin") {
+        create("LokalisePluginAndroid") {
             id = "me.eremkin.lokalise-plugin"
             implementationClass = "me.eremkin.lokalise.LokalisePlugin"
+        }
+        create("LokalisePluginIos") {
+            id = "me.eremkin.lokalise-plugin.ios"
+            implementationClass = "me.eremkin.lokalise.LokalisePluginIos"
         }
     }
 }

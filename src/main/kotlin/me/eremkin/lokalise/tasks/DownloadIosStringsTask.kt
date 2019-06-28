@@ -1,8 +1,11 @@
 package me.eremkin.lokalise.tasks
 
-import me.eremkin.lokalise.*
-import me.eremkin.lokalise.api.IosLokalizeApi2
+import me.eremkin.lokalise.ApiConfig
+import me.eremkin.lokalise.IosDownloadConfig
+import me.eremkin.lokalise.api.Api2
 import me.eremkin.lokalise.api.dto.DownloadParams
+import me.eremkin.lokalise.createFileIfNotExist
+import me.eremkin.lokalise.taskGroup
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -43,7 +46,7 @@ open class DownloadIosStringsTask : DefaultTask() {
         }
 
         println("Downloading translations from lokalise...")
-        val response = IosLokalizeApi2.api.downloadFiles(apiConfig.token, DownloadParams(format = "strings", langs = langParam)).execute()
+        val response = Api2.api.downloadFiles(apiConfig.token, DownloadParams(format = "strings", langs = langParam)).execute()
 
         if (!response.isSuccessful) {
             throw RuntimeException(response.errorBody()?.string())

@@ -2,8 +2,7 @@ package me.eremkin.lokalise
 
 import com.android.build.gradle.BaseExtension
 import groovy.lang.Closure
-import me.eremkin.lokalise.api.AndroidLokalizeApi2
-import me.eremkin.lokalise.api.IosLokalizeApi2
+import me.eremkin.lokalise.api.Api2
 import me.eremkin.lokalise.tasks.DownloadAndroidStringsTask
 import me.eremkin.lokalise.tasks.DownloadIosStringsTask
 import org.gradle.api.Action
@@ -15,8 +14,7 @@ import org.rnazarevych.lokalise.tasks.UploadStrings
 import java.io.File
 
 const val taskGroup = "lokalise"
-const val lokaliseAndroid = "lokalise"
-const val lokaliseIos = "lokaliseIos"
+const val lokaliseConfig = "lokalise"
 
 const val exceptionTag = "lokalise-plugin"
 
@@ -24,73 +22,79 @@ class LokalisePlugin : Plugin<Project> {
 
     lateinit var androidConfig: AndroidConfig
 
-    lateinit var iosConfig: IosConfig;
-
     override fun apply(project: Project) {
 
-        androidConfig = project.extensions.create(lokaliseAndroid, AndroidConfig::class.java)
+        androidConfig = project.extensions.create(lokaliseConfig, AndroidConfig::class.java)
         val langs = project.container(Lang::class.java)
         androidConfig.translationsUpdateConfig.langs = langs
 
-        iosConfig = project.extensions.create(lokaliseIos, IosConfig::class.java)
-
         project.afterEvaluate {
 
-            if (androidConfig.valid()) {
-                project.plugins.apply {
-                    if (findPlugin("com.android.application") == null && findPlugin("com.android.library") == null) {
-                        throw RuntimeException("You must apply the Android plugin or the Android library plugin before using the lokalise plugin")
-                    }
-                }
-
-                val android: BaseExtension = project.extensions.findByName("android") as BaseExtension
-
-                val resPath = androidConfig.translationsUpdateConfig.resPath
-
-                if (resPath == "") {
-                    try {
-                        val resDirs = android.sourceSets.getByName("main").res.srcDirs
-                        androidConfig.translationsUpdateConfig.resPath = resDirs.iterator().next().absolutePath
-                    } catch (exeption: Exception) {
-                        throw RuntimeException("$exceptionTag: ${exeption.message ?: ""}")
-                    }
-                } else {
-                    if (!File(resPath).exists()) {
-                        throw RuntimeException("$exceptionTag: invalid resource path: $resPath")
-                    }
-                }
-
-                AndroidLokalizeApi2.configure(androidConfig.apiConfig.projectId)
-
-                with(project.tasks) {
-                    create("downloadAndroidStrings", DownloadAndroidStringsTask::class.java) {
-                        it.apiConfig = androidConfig.apiConfig
-                        it.config = androidConfig.translationsUpdateConfig
-                        it.buildFolder = project.buildDir
-                    }
-
-                    create("uploadAndroidStrings", UploadStrings::class.java) {
-                        it.apiConfig = androidConfig.apiConfig
-                        it.uploadEntries = androidConfig.uploadEntries
-                    }
+            project.plugins.apply {
+                if (findPlugin("com.android.application") == null && findPlugin("com.android.library") == null) {
+                    throw RuntimeException("You must apply the Android plugin or the Android library plugin before using the lokalise plugin")
                 }
             }
 
-            if (iosConfig.valid()) {
-                IosLokalizeApi2.configure(iosConfig.apiConfig.projectId)
+            val android: BaseExtension = project.extensions.findByName("android") as BaseExtension
 
-                with(project.tasks) {
-                    create("downloadIosLocalizableStrings", DownloadIosStringsTask::class.java) {
-                        it.apiConfig = iosConfig.apiConfig
-                        it.downloadsConfigs = iosConfig.downloadConfigEntries
-                        it.projectFolder = project.projectDir
-                        it.buildFolder = project.buildDir
-                    }
+            val resPath = androidConfig.translationsUpdateConfig.resPath
+
+            if (resPath == "") {
+                try {
+                    val resDirs = android.sourceSets.getByName("main").res.srcDirs
+                    androidConfig.translationsUpdateConfig.resPath = resDirs.iterator().next().absolutePath
+                } catch (exeption: Exception) {
+                    throw RuntimeException("$exceptionTag: ${exeption.message ?: ""}")
+                }
+            } else {
+                if (!File(resPath).exists()) {
+                    throw RuntimeException("$exceptionTag: invalid resource path: $resPath")
+                }
+            }
+
+            Api2.configure(androidConfig.apiConfig.projectId)
+
+            with(project.tasks) {
+                create("downloadAndroidStrings", DownloadAndroidStringsTask::class.java) {
+                    it.apiConfig = androidConfig.apiConfig
+                    it.config = androidConfig.translationsUpdateConfig
+                    it.buildFolder = project.buildDir
+                }
+
+                create("uploadAndroidStrings", UploadStrings::class.java) {
+                    it.apiConfig = androidConfig.apiConfig
+                    it.uploadEntries = androidConfig.uploadEntries
                 }
             }
         }
     }
 }
+
+
+class LokalisePluginIos : Plugin<Project> {
+
+    lateinit var iosConfig: IosConfig;
+
+    override fun apply(project: Project) {
+
+        iosConfig = project.extensions.create(lokaliseConfig, IosConfig::class.java)
+
+        project.afterEvaluate {
+            Api2.configure(iosConfig.apiConfig.projectId)
+
+            with(project.tasks) {
+                create("downloadIosLocalizableStrings", DownloadIosStringsTask::class.java) {
+                    it.apiConfig = iosConfig.apiConfig
+                    it.downloadsConfigs = iosConfig.downloadConfigEntries
+                    it.projectFolder = project.projectDir
+                    it.buildFolder = project.buildDir
+                }
+            }
+        }
+    }
+}
+
 
 open class AndroidConfig {
     val apiConfig = ApiConfig()
@@ -113,7 +117,7 @@ open class IosConfig {
     val apiConfig = ApiConfig()
     fun api(action: Action<in ApiConfig>) = action.execute(apiConfig)
 
-    val downloadConfigEntries : MutableList<IosDownloadConfig> = mutableListOf();
+    val downloadConfigEntries: MutableList<IosDownloadConfig> = mutableListOf();
 
     fun lang(action: Action<in IosDownloadConfig>) {
         val newConfig = IosDownloadConfig()

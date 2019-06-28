@@ -1,7 +1,7 @@
 package me.eremkin.lokalise.tasks
 
 import me.eremkin.lokalise.*
-import me.eremkin.lokalise.api.AndroidLokalizeApi2
+import me.eremkin.lokalise.api.Api2
 import me.eremkin.lokalise.api.dto.DownloadParams
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
@@ -45,7 +45,7 @@ open class DownloadAndroidStringsTask : DefaultTask() {
         }
 
         println("Downloading translations from lokalise...")
-        val response = AndroidLokalizeApi2.api.downloadFiles(apiConfig.token, DownloadParams(langs = langParam)).execute()
+        val response = Api2.api.downloadFiles(apiConfig.token, DownloadParams(langs = langParam)).execute()
 
         if (!response.isSuccessful) {
             throw RuntimeException(response.errorBody()?.string())
