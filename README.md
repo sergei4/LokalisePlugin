@@ -20,14 +20,15 @@ buildscript {
   
   dependencies {  
          .......
-         classpath 'com.github.sergei4:lokaliseplugin:1.7.1' // latest version of plugin goes here
+         classpath 'com.github.sergei4:lokaliseplugin:1.8.0' // latest version of plugin goes here
   }  
 }
 ```
-And in your app module `build.gradle` add this:
+#### Android
+Add in your app module `build.gradle` this:
 
 ```
-apply plugin: 'me.eremkin.lokalise-plugin' // apply plugin
+apply plugin: 'me.eremkin.lokalise-plugin' // apply plugin for android
 ......
 // and configure it
 lokalise {  
@@ -63,11 +64,37 @@ lokalise {
     }
 }
 ```
+#### Ios
+Add in your app module `build.gradle` this:
+```
+apply plugin: 'me.eremkin.lokalise-plugin.ios' // apply plugin for ios
+......
+// and configure it
+lokalise {  
+    api {  
+        projectId = "123456789" // t
+        token = "token"  // you need token with read and write permissions
+    }  
+  
+    lang {
+        path = "ios/ru.lproj"
+        lokaliseLang = "ru"
+    }
+
+    lang {
+        path = "ios/zh.lproj"
+        lokaliseLang = "zh_CN"
+        langCode = "zh-Hans"
+    }
+}
+```
+
 To get `projectId` go to your Project/Settings/General 
 To get read/write `token` read this [documentation](https://docs.lokalise.co/faqs/api-tokens)
 
-After this configuration you should be able to use those 2 gradle tasks `uploadAndroidStrings` and `downloadAndroidStrings`  you can execute them from IDE GUI or command line.
-``` ./gradlew downloadTranslations ```
+Regarding this configuration you should be able to use those 2 gradle tasks for android `uploadAndroidStrings` and `downloadAndroidStrings` or 1 task for ios `downloadIosLocalizableStrings`  
+You can execute them from IDE GUI or command line.``` ./gradlew downloadAndroidStrings ```
+
 
 ## Thanks
 
