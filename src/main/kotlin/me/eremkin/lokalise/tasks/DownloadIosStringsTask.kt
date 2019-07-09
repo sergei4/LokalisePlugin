@@ -69,8 +69,8 @@ open class DownloadIosStringsTask : DefaultTask() {
 
                                 langOutFile.writeText("") // could be a comment here
                                 tmpLangFile.readLines().all { line ->
-                                    val line1 = line.replace(Regex("%\\d+\\\$@"), "%@")
-                                    langOutFile.appendText("$line1\n")
+                                    langOutFile.appendText(line.replace(Regex("%\\d+\\\$@"), "%@"))
+                                    langOutFile.appendText("\r\n")
                                     true
                                 }
                             }

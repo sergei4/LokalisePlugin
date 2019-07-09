@@ -109,8 +109,6 @@ open class AndroidConfig {
         action.execute(newEntry)
         uploadEntries.add(newEntry)
     }
-
-    fun valid(): Boolean = apiConfig.projectId != ""
 }
 
 open class IosConfig {
@@ -124,8 +122,6 @@ open class IosConfig {
         action.execute(newConfig)
         downloadConfigEntries.add(newConfig)
     }
-
-    fun valid(): Boolean = apiConfig.projectId != ""
 }
 
 data class ApiConfig(
