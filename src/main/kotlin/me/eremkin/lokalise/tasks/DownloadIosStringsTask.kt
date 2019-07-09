@@ -61,8 +61,18 @@ open class DownloadIosStringsTask : DefaultTask() {
                         zip.entries().asSequence().forEach { zipEntry ->
                             if (!zipEntry.isDirectory) {
                                 val langFile = zipEntry.name.split("/").last()
-                                zip.getInputStream(zipEntry).copyTo(File(tmpFolder, langFile).outputStream())
+                                val tmpLangFile = File(tmpFolder, "$langFile.tmp")
+                                val langOutFile = File(tmpFolder, "$langFile.out")
+
+                                zip.getInputStream(zipEntry).copyTo(tmpLangFile.outputStream())
                                 println("Found localization file $langFile")
+
+                                langOutFile.writeText("") // could be a comment here
+                                tmpLangFile.readLines().all { line ->
+                                    val line1 = line.replace(Regex("%\\d+\\\$@"), "%@")
+                                    langOutFile.appendText("$line1\n")
+                                    true
+                                }
                             }
                         }
                     }
@@ -74,7 +84,7 @@ open class DownloadIosStringsTask : DefaultTask() {
                     File(projectFolder, downloadConfig.path).let { langFolder ->
                         if (langFolder.exists()) {
                             val langCode = if (downloadConfig.langCode != "") downloadConfig.langCode else downloadConfig.lokaliseLang
-                            File(tmpFolder, langCode + ".strings").run {
+                            File(tmpFolder, langCode + ".strings.out").run {
                                 if (exists()) {
                                     val resultFile = File(langFolder, "Localizable.strings")
                                     copyTo(resultFile, true)
