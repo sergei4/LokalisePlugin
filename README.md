@@ -20,7 +20,7 @@ buildscript {
   
   dependencies {  
          .......
-         classpath 'com.github.sergei4:lokaliseplugin:1.5.0' // latest version of plugin goes here
+         classpath 'com.github.sergei4:lokaliseplugin:1.7.1' // latest version of plugin goes here
   }  
 }
 ```
@@ -66,7 +66,7 @@ lokalise {
 To get `projectId` go to your Project/Settings/General 
 To get read/write `token` read this [documentation](https://docs.lokalise.co/faqs/api-tokens)
 
-After this configuration you should be able to use those 2 gradle tasks `uploadStrings` and `downloadTranslations`  you can execute them from IDE GUI or command line.
+After this configuration you should be able to use those 2 gradle tasks `uploadAndroidStrings` and `downloadAndroidStrings`  you can execute them from IDE GUI or command line.
 ``` ./gradlew downloadTranslations ```
 
 ## Thanks
