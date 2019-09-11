@@ -84,9 +84,20 @@ open class DownloadIosStringsTask : DefaultTask() {
                     File(projectFolder, downloadConfig.path).let { langFolder ->
                         if (langFolder.exists()) {
                             val langCode = if (downloadConfig.langCode != "") downloadConfig.langCode else downloadConfig.lokaliseLang
+                            // strings
                             File(tmpFolder, langCode + ".strings.out").run {
                                 if (exists()) {
                                     val resultFile = File(langFolder, "Localizable.strings")
+                                    copyTo(resultFile, true)
+                                    println("Info: translation applied successful")
+                                } else {
+                                    println("Warning: there isn't transation file ${this.name} for lang: ${downloadConfig.lokaliseLang}")
+                                }
+                            }
+                            // stringdict
+                            File(tmpFolder, langCode + ".stringsdict.out").run {
+                                if (exists()) {
+                                    val resultFile = File(langFolder, "Localizable.stringsdict")
                                     copyTo(resultFile, true)
                                     println("Info: translation applied successful")
                                 } else {
