@@ -18,11 +18,11 @@ object TranslationUpdater {
 
         TransformerFactory.newInstance().newTransformer()
             .apply {
-                setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
+                setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no")
                 setOutputProperty(OutputKeys.ENCODING, "UTF-8")
                 setOutputProperty(OutputKeys.INDENT, "yes")
-            }
-            .apply {
+                setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
                 val domSource = DOMSource(finalDocument)
                 val streamResult = StreamResult(resultXml)
                 transform(domSource, streamResult)
@@ -31,6 +31,10 @@ object TranslationUpdater {
 
     private fun mergeXml(originalContent: File, newContent: File): Document {
         return DocumentBuilderFactory.newInstance().newDocumentBuilder().run {
+            val xmlResultDoc = newDocument()
+            val xmlResultEle = xmlResultDoc.createElement("resources")
+            xmlResultDoc.appendChild(xmlResultEle)
+
             val xmlOrgDoc = parse(originalContent)
             val xmlOrgEle = xmlOrgDoc.getDocumentElement()
 
@@ -65,15 +69,21 @@ object TranslationUpdater {
                 }
             }
 
-            println("Writing ${newStringMap.size} new entries")
-            if (newStringMap.isNotEmpty()) {
-                //xmlOrgDoc.documentElement.appendChild(xmlOrgDoc.createComment("New translations added at ${LocalDateTime.now()}\n"))
-                for (node in newStringMap.values) {
-                    val xmlImportedNode = xmlOrgDoc.importNode(node, true)
-                    xmlOrgEle.appendChild(xmlImportedNode)
+            with(xmlOrgEle.childNodes){
+                for(i in 0 until length){
+                    val xmlImportedNode = xmlResultDoc.importNode(item(i), true)
+                    xmlResultEle.appendChild(xmlImportedNode)
                 }
             }
-            xmlOrgDoc
+
+            println("Writing ${newStringMap.size} new entries")
+            if (newStringMap.isNotEmpty()) {
+                for (node in newStringMap.values) {
+                    val xmlImportedNode = xmlResultDoc.importNode(node, true)
+                    xmlResultEle.appendChild(xmlImportedNode)
+                }
+            }
+            xmlResultDoc
         }
     }
 }
