@@ -1,8 +1,10 @@
 package me.eremkin.lokalise.api
 
 import com.google.gson.GsonBuilder
+import me.eremkin.lokalise.ApiConfig
 import me.eremkin.lokalise.api.dto.DownloadParams
 import me.eremkin.lokalise.api.dto.DownloadResponse
+import me.eremkin.lokalise.throwError
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,16 +17,17 @@ import retrofit2.http.Headers
 import retrofit2.http.POST
 import java.util.concurrent.TimeUnit
 
-interface LokaliseApi2 {
+private interface Api {
     @Headers("content-type:application/json")
     @POST("files/download")
     fun downloadFiles(
         @Header("x-api-token") apiToken: String,
-        @Body params : DownloadParams
+        @Body params: DownloadParams
     ): Call<DownloadResponse>
 }
 
-object Api2 {
+class LocaliseService(private val apiConfig: ApiConfig) {
+
     private val gson = GsonBuilder().create()
 
     private val loggingInterceptor: Interceptor = HttpLoggingInterceptor()
@@ -37,14 +40,19 @@ object Api2 {
         //.addInterceptor(loggingInterceptor)
         .build()
 
-    lateinit var api: LokaliseApi2
+    private val api = Retrofit.Builder()
+        .baseUrl("https://api.lokalise.co/api2/projects/${apiConfig.projectId}/")
+        .client(client)
+        .addConverterFactory(GsonConverterFactory.create(gson))
+        .build()
+        .create(Api::class.java)
 
-    fun configure(projectId: String) {
-        api = Retrofit.Builder()
-            .baseUrl("https://api.lokalise.co/api2/projects/$projectId/")
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-            .create(LokaliseApi2::class.java)
+    fun downloadFiles(langs: List<String>): DownloadResponse? {
+
+        val response = api.downloadFiles(apiConfig.token, DownloadParams(langs = langs)).execute()
+        if (!response.isSuccessful) {
+            throwError(response.errorBody()?.string() ?: "Download common error")
+        }
+        return response.body()
     }
 }
