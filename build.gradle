@@ -55,7 +55,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'org.codehaus.groovy:groovy-all:2.4.15'
 
-    implementation "com.android.tools.build:gradle:3.2.1"
+    implementation "com.android.tools.build:gradle:3.5.3"
     
     //Network
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
