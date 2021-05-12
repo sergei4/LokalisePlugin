@@ -82,9 +82,7 @@ open class DownloadAndroidStringsTask : DefaultTask() {
     }
 
     private fun findLangFile(localiseLang: String, tmpFolder: File): File? {
-        var langIso = localiseLang.apply {
-            replace("_", "-r")
-        }
+        var langIso = localiseLang.replace("_", "-r")
         langMap.forEach {
             langIso = langIso.replace(it.key, it.value)
         }
