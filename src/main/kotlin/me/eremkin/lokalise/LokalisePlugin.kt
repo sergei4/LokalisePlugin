@@ -2,8 +2,8 @@ package me.eremkin.lokalise
 
 import com.android.build.gradle.BaseExtension
 import me.eremkin.lokalise.api.LocaliseService
-import me.eremkin.lokalise.tasks.android.DownloadAndroidStringsTask
-import me.eremkin.lokalise.tasks.android.UploadStrings
+import me.eremkin.lokalise.tasks.android2.DownloadAndroidStringsTask
+import me.eremkin.lokalise.tasks.android2.UploadStrings
 import me.eremkin.lokalise.tasks.ios.DownloadIosStringsTask
 import org.gradle.api.Action
 import org.gradle.api.Plugin
