@@ -1,13 +1,8 @@
-package me.eremkin.lokalise
+package me.eremkin.lokalise.config
 
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
-
-data class ApiConfig(
-    var projectId: String = "",
-    var token: String = ""
-)
 
 open class UploadEntry(
     var path: String = "",

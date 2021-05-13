@@ -9,4 +9,5 @@ tmp/
 local.properties
 
 #testing
-android/
+android/*
+ios/*

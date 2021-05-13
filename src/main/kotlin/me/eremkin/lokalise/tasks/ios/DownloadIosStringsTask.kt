@@ -1,7 +1,9 @@
 package me.eremkin.lokalise.tasks.ios
 
-import me.eremkin.lokalise.IosDownloadConfig
 import me.eremkin.lokalise.api.LocaliseService
+import me.eremkin.lokalise.api.dto.DownloadParams
+import me.eremkin.lokalise.config.IosDownloadConfig
+import me.eremkin.lokalise.unzip
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -18,84 +20,78 @@ open class DownloadIosStringsTask : DefaultTask() {
 
     @TaskAction
     fun download() {
-        if (downloadsConfigs.size == 0) {
+        if (downloadsConfigs.isEmpty()) {
             println("Warning: there isn't at least one section {langs}")
             return
         }
 
-        val tmpFolder = File(buildFolder, "tmp/lokalise-plugin").apply { mkdirs() }
+        val tmpFolder = File(buildFolder, "tmp/lokalise-plugin").also { it.mkdirs() }
 
-        val langParam = mutableListOf<String>()
-        downloadsConfigs.all {
-            langParam.add(it.lokaliseLang)
+        val langParam = mutableListOf<String>().apply {
+            downloadsConfigs.forEach { add(it.lokaliseLang) }
         }
 
-//        println("Downloading translations from lokalise...")
-//        val response = Api2.api.downloadFiles(apiConfig.token, DownloadParams(format = "strings", langs = langParam)).execute()
-//
-//        if (!response.isSuccessful) {
-//            throw RuntimeException(response.errorBody()?.string())
-//        } else {
-//            println("Download completed successful")
-//            response.body()?.let {
-//                println("Start unzip lokalize archive")
-//                File(tmpFolder, "Localizable.strings.zip").createFileIfNotExist {
-//                    URL(it.bundleUrl).openStream().copyTo(outputStream())
-//
-//                    ZipFile(this).use { zip ->
-//                        zip.entries().asSequence().forEach { zipEntry ->
-//                            if (!zipEntry.isDirectory) {
-//                                val langFile = zipEntry.name.split("/").last()
-//                                val tmpLangFile = File(tmpFolder, "$langFile.tmp")
-//                                val langOutFile = File(tmpFolder, "$langFile.out")
-//
-//                                zip.getInputStream(zipEntry).copyTo(tmpLangFile.outputStream())
-//                                println("Found localization file $langFile")
-//
-//                                langOutFile.writeText("") // could be a comment here
-//                                tmpLangFile.readLines().all { line ->
-//                                    val line1 = line.replace(Regex("%\\d+\\\$@"), "%@")
-//                                    langOutFile.appendText("$line1\n")
-//                                    true
-//                                }
-//                            }
-//                        }
-//                    }
-//                    delete()
-//                }
-//                println("Start apply translations")
-//                downloadsConfigs.all { downloadConfig ->
-//                    println("Locale: ${downloadConfig.lokaliseLang}")
-//                    File(projectFolder, downloadConfig.path).let { langFolder ->
-//                        if (langFolder.exists()) {
-//                            val langCode = if (downloadConfig.langCode != "") downloadConfig.langCode else downloadConfig.lokaliseLang
-//                            // strings
-//                            File(tmpFolder, langCode + ".strings.out").run {
-//                                if (exists()) {
-//                                    val resultFile = File(langFolder, "Localizable.strings")
-//                                    copyTo(resultFile, true)
-//                                    println("Info: translation applied successful")
-//                                } else {
-//                                    println("Warning: there isn't transation file ${this.name} for lang: ${downloadConfig.lokaliseLang}")
-//                                }
-//                            }
-//                            // stringdict
-//                            File(tmpFolder, langCode + ".stringsdict.out").run {
-//                                if (exists()) {
-//                                    val resultFile = File(langFolder, "Localizable.stringsdict")
-//                                    copyTo(resultFile, true)
-//                                    println("Info: translation applied successful")
-//                                } else {
-//                                    println("Warning: there isn't transation file ${this.name} for lang: ${downloadConfig.lokaliseLang}")
-//                                }
-//                            }
-//                        } else {
-//                            println("Warning: there isn't destination folder ${langFolder.absolutePath} for lokalise locale: ${downloadConfig.lokaliseLang}")
-//                        }
-//                    }
-//                    true
-//                }
-//            }
-//        }
+        println("Downloading translations from lokalise...")
+        localiseService.downloadFiles(DownloadParams(format = "strings", langs = langParam))?.let {
+            println("Unzip translations")
+            unzip(bundleUrl = it.bundleUrl, targetFolder = tmpFolder)
+        }
+        println("Start apply translations...")
+        applyTranslations(downloadsConfigs, tmpFolder)
     }
+
+    private fun applyTranslations(downloadsConfigs: List<IosDownloadConfig>, tmpFolder: File) {
+        downloadsConfigs.forEach { downloadConfig ->
+            println("Locale: ${downloadConfig.lokaliseLang}")
+            val langFolder = File(projectFolder, downloadConfig.path)
+            if (!langFolder.exists()) {
+                println("Warning: there isn't destination folder ${downloadConfig.path} for lokalise locale: ${downloadConfig.lokaliseLang}")
+                return@forEach
+            }
+            val langCode =
+                if (downloadConfig.langCode.isNotEmpty()) downloadConfig.langCode else downloadConfig.lokaliseLang
+            // strings
+            File(tmpFolder, "$langCode.strings").run {
+                if (exists()) {
+                    println("Info: Apply strings file: ${this.name}")
+                    normalizeStringFile(downloadConfig.forceSetRTL).copyTo(
+                        File(langFolder, "Localizable.strings"),
+                        true
+                    )
+                } else {
+                    println("Warning: there isn't .strings file $name for lang: ${downloadConfig.lokaliseLang}")
+                }
+            }
+            // stringdict
+            File(tmpFolder, "$langCode.stringsdict").run {
+                if (exists()) {
+                    println("Info: Apply stringsdict file: ${this.name}")
+                    normalizeStringdictFile().copyTo(File(langFolder, "Localizable.stringsdict"), true)
+                } else {
+                    println("Warning: there isn't .stringsdict file $name for lang: ${downloadConfig.lokaliseLang}")
+                }
+            }
+        }
+    }
+
+    private fun File.normalizeStringFile(forceSetRtl: Boolean): File {
+        val source = this
+        return File("${this.absolutePath}.out").apply {
+            if (exists()) delete()
+            source.forEachLine { inputLine ->
+                val outputLine = if (forceSetRtl) {
+                    inputLine.replaceFirst("\" = \"", "\" = \"\\U200F")
+                } else {
+                    inputLine
+                }
+                appendText("${outputLine.fixNumericPlaceHolder()}\n")
+            }
+        }
+    }
+
+    private fun File.normalizeStringdictFile(): File {
+        return this
+    }
+
+    private fun String.fixNumericPlaceHolder() = replace(Regex("%\\d+\\\$@"), "%@")
 }

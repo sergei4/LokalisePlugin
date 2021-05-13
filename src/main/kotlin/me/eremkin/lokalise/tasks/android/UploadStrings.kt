@@ -1,7 +1,7 @@
-package me.eremkin.lokalise.tasks.android2
+package me.eremkin.lokalise.tasks.android
 
-import me.eremkin.lokalise.ApiConfig
-import me.eremkin.lokalise.UploadEntry
+import me.eremkin.lokalise.config.ApiConfig
+import me.eremkin.lokalise.config.UploadEntry
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

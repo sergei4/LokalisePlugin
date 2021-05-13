@@ -2,10 +2,12 @@ package me.eremkin.lokalise
 
 import com.android.build.gradle.BaseExtension
 import me.eremkin.lokalise.api.LocaliseService
-import me.eremkin.lokalise.tasks.android2.DownloadAndroidStringsTask
-import me.eremkin.lokalise.tasks.android2.UploadStrings
+import me.eremkin.lokalise.config.AndroidConfig
+import me.eremkin.lokalise.config.IosConfig
+import me.eremkin.lokalise.config.Lang
+import me.eremkin.lokalise.tasks.android.DownloadAndroidStringsTask
+import me.eremkin.lokalise.tasks.android.UploadStrings
 import me.eremkin.lokalise.tasks.ios.DownloadIosStringsTask
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -73,7 +75,7 @@ class LokalisePluginIos : Plugin<Project> {
         project.afterEvaluate {
             with(project.tasks) {
                 val localiseService = LocaliseService(iosConfig.apiConfig)
-                create("downloadIOSLocalizableStrings", DownloadIosStringsTask::class.java) {
+                create("downloadIosLocalizableStrings", DownloadIosStringsTask::class.java) {
                     it.group = taskGroup
                     it.localiseService = localiseService
                     it.downloadsConfigs = iosConfig.downloadConfigEntries
@@ -83,23 +85,4 @@ class LokalisePluginIos : Plugin<Project> {
             }
         }
     }
-}
-
-open class IosConfig {
-    val apiConfig = ApiConfig()
-    fun api(action: Action<in ApiConfig>) = action.execute(apiConfig)
-
-    val downloadConfigEntries: MutableList<IosDownloadConfig> = mutableListOf();
-
-    fun lang(action: Action<in IosDownloadConfig>) {
-        val newConfig = IosDownloadConfig()
-        action.execute(newConfig)
-        downloadConfigEntries.add(newConfig)
-    }
-}
-
-open class IosDownloadConfig {
-    var path: String = ""
-    var lokaliseLang: String = ""
-    var langCode = ""
 }

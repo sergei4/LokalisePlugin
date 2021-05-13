@@ -1,15 +1,15 @@
-package me.eremkin.lokalise.tasks.android2
+package me.eremkin.lokalise.tasks.android
 
-import me.eremkin.lokalise.Lang
-import me.eremkin.lokalise.TranslationsUpdateConfig
 import me.eremkin.lokalise.api.LocaliseService
+import me.eremkin.lokalise.api.dto.DownloadParams
+import me.eremkin.lokalise.config.Lang
+import me.eremkin.lokalise.config.TranslationsUpdateConfig
 import me.eremkin.lokalise.createFileIfNotExist
 import me.eremkin.lokalise.tasks.TranslationUpdater
+import me.eremkin.lokalise.unzip
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
-import java.net.URL
-import java.util.zip.ZipFile
 
 open class DownloadAndroidStringsTask : DefaultTask() {
 
@@ -19,12 +19,12 @@ open class DownloadAndroidStringsTask : DefaultTask() {
 
     lateinit var config: TranslationsUpdateConfig
 
-    val langMap = mapOf(
+    private val langMap = mapOf(
         "he" to "iw"
     )
 
     private fun validate(): Boolean {
-        if (config.langs.size == 0) {
+        if (config.langs.isEmpty()) {
             println("Warning: there isn't section {langs}")
             return false
         }
@@ -44,36 +44,21 @@ open class DownloadAndroidStringsTask : DefaultTask() {
         config.langs.forEach { langParam.add(it.lokaliseLang) }
 
         println("Downloading translations from lokalise...")
-        localiseService.downloadFiles(langParam)?.let {
+        localiseService.downloadFiles(DownloadParams(langs = langParam))?.let {
             println("Unzip translations")
-            unzip(bundleUrl = it.bundleUrl, tmpFolder = tmpFolder)
-            println("Start apply translations...")
-            applyTranslations(config.langs, tmpFolder, recourseFolder)
+            unzip(bundleUrl = it.bundleUrl, targetFolder = tmpFolder)
         }
+        println("Start apply translations...")
+        applyTranslations(config.langs, tmpFolder, recourseFolder)
     }
 
-    private fun unzip(bundleUrl: String, tmpFolder: File) {
-        File(tmpFolder, "strings.zip").createFileIfNotExist {
-            URL(bundleUrl).openStream().copyTo(outputStream())
-            ZipFile(this).use { zip ->
-                zip.entries().asSequence().forEach { zipEntry ->
-                    if (!zipEntry.isDirectory) {
-                        zip.getInputStream(zipEntry)
-                            .copyTo(File(tmpFolder, zipEntry.name.split("/").last()).outputStream())
-                    }
-                }
-            }
-            delete()
-        }
-    }
-
-    private fun applyTranslations(langs: Set<Lang>, tmpFolder: File, recourseFolder: File) {
+    private fun applyTranslations(langs: Set<Lang>, tmpFolder: File, resourceFolder: File) {
         langs.forEach() { lang ->
             println("Locale: ${if (lang.androidLang.isEmpty()) "default locale" else lang.androidLang}")
             findLangFile(lang.lokaliseLang, tmpFolder)?.let {
                 applyLang(
                     srcFile1 = it,
-                    destFile = androidStringsFile(recourseFolder, lang.androidLang),
+                    destFile = androidStringsFile(resourceFolder, lang.androidLang),
                     updateStrategy = lang.updateStrategy,
                     forceSetRtl = lang.forceSetRTL
                 )
@@ -125,13 +110,13 @@ open class DownloadAndroidStringsTask : DefaultTask() {
         }
         return File("${source.absolutePath}.rtl").apply {
             if (exists()) delete()
-            source.forEachLine { line ->
-                if (line.trim().startsWith("<string")) {
-                    appendText(line.replaceFirst(">", ">\\u200f"))
+            source.forEachLine { inputLine ->
+                val outputLine = if (inputLine.trim().startsWith("<string")) {
+                    inputLine.replaceFirst(">", ">\\u200f")
                 } else {
-                    appendText(line)
+                    inputLine
                 }
-                appendText("\n")
+                appendText("$outputLine\n")
             }
         }
     }

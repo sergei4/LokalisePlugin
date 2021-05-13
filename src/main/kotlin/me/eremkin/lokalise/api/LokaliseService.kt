@@ -1,9 +1,9 @@
 package me.eremkin.lokalise.api
 
 import com.google.gson.GsonBuilder
-import me.eremkin.lokalise.ApiConfig
 import me.eremkin.lokalise.api.dto.DownloadParams
 import me.eremkin.lokalise.api.dto.DownloadResponse
+import me.eremkin.lokalise.config.ApiConfig
 import me.eremkin.lokalise.throwError
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -47,9 +47,9 @@ class LocaliseService(private val apiConfig: ApiConfig) {
         .build()
         .create(Api::class.java)
 
-    fun downloadFiles(langs: List<String>): DownloadResponse? {
+    fun downloadFiles(downloadParams: DownloadParams): DownloadResponse? {
 
-        val response = api.downloadFiles(apiConfig.token, DownloadParams(langs = langs)).execute()
+        val response = api.downloadFiles(apiConfig.token, downloadParams).execute()
         if (!response.isSuccessful) {
             throwError(response.errorBody()?.string() ?: "Download common error")
         }
