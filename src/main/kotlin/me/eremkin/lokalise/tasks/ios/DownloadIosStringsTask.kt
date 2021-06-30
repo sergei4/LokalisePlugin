@@ -7,6 +7,7 @@ import me.eremkin.lokalise.unzip
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import java.util.*
 
 open class DownloadIosStringsTask : DefaultTask() {
 
@@ -54,10 +55,13 @@ open class DownloadIosStringsTask : DefaultTask() {
             File(tmpFolder, "$langCode.strings").run {
                 if (exists()) {
                     println("Info: Apply strings file: ${this.name}")
-                    normalizeStringFile(downloadConfig.forceSetRTL).copyTo(
-                        File(langFolder, "Localizable.strings"),
-                        true
-                    )
+                    val stringsFile = normalizeStringFile(downloadConfig.forceSetRTL)
+                        .copyTo(File(langFolder, "Localizable.strings"), true)
+                    if (downloadConfig.createInfoPlist) {
+                        println("Info: Extract strings into InfoPlist: ${this.name}")
+                        File(langFolder, "InfoPlist.strings").apply { if (exists()) delete() }
+                            .extractFrom(stringsFile) { it.startsWith("\"NS") }
+                    }
                 } else {
                     println("Warning: there isn't .strings file $name for lang: ${downloadConfig.lokaliseLang}")
                 }
@@ -94,4 +98,8 @@ open class DownloadIosStringsTask : DefaultTask() {
     }
 
     private fun String.fixNumericPlaceHolder() = replace(Regex("%\\d+\\\$@"), "%@")
+
+    private fun File.extractFrom(textFile: File, predicate: (String) -> Boolean) {
+        textFile.forEachLine { if (predicate(it)) appendText(it) }
+    }
 }

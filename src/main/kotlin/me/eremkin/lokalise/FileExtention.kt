@@ -8,13 +8,14 @@ fun File.ifExists(block: File.() -> Unit) {
     if (exists()) block(this)
 }
 
-fun File.createFileIfNotExist(block: (File.() -> Unit)? = null) {
+fun File.createFileIfNotExist(block: (File.() -> Unit)? = null) : File {
     if (exists()) {
         createNewFile()
     }
     block?.let {
         it(this)
     }
+    return this
 }
 
 fun File.createFolderIfNotExist() {

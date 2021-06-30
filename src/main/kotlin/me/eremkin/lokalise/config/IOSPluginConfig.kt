@@ -20,4 +20,5 @@ open class IosDownloadConfig {
     var lokaliseLang: String = ""
     var langCode = ""
     var forceSetRTL = false
+    var createInfoPlist = false
 }
