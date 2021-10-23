@@ -8,15 +8,20 @@ import me.eremkin.lokalise.createFileIfNotExist
 import me.eremkin.lokalise.tasks.TranslationUpdater
 import me.eremkin.lokalise.unzip
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
 open class DownloadAndroidStringsTask : DefaultTask() {
 
+    @Internal
     lateinit var localiseService: LocaliseService
 
+    @OutputDirectory
     lateinit var buildFolder: File
 
+    @Internal
     lateinit var config: TranslationsUpdateConfig
 
     private val langMap = mapOf(
@@ -86,7 +91,12 @@ open class DownloadAndroidStringsTask : DefaultTask() {
         return File(langFolder, "strings.xml")
     }
 
-    private fun applyLang(srcFile1: File, destFile: File, updateStrategy: String, forceSetRtl: Boolean) {
+    private fun applyLang(
+        srcFile1: File,
+        destFile: File,
+        updateStrategy: String,
+        forceSetRtl: Boolean
+    ) {
         val srcFile = normalizeSourceFile(srcFile1, forceSetRtl)
         when (updateStrategy) {
             "replace" -> srcFile.copyTo(destFile, true)
