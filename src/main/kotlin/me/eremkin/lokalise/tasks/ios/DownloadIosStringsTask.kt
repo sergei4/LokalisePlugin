@@ -5,18 +5,24 @@ import me.eremkin.lokalise.api.dto.DownloadParams
 import me.eremkin.lokalise.config.IosDownloadConfig
 import me.eremkin.lokalise.unzip
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.util.*
 
 open class DownloadIosStringsTask : DefaultTask() {
 
+    @Internal
     lateinit var localiseService: LocaliseService
 
+    @OutputDirectory
     lateinit var buildFolder: File
 
+    @OutputDirectory
     lateinit var projectFolder: File
 
+    @Internal
     lateinit var downloadsConfigs: List<IosDownloadConfig>
 
     @TaskAction
